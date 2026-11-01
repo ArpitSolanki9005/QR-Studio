@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#071326">
+  <title>QR Studio — Advanced QR Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.9.2/lib/qr-code-styling.js"
+    onerror="this.onerror=null;this.src='https://unpkg.com/qr-code-styling@1.9.2/lib/qr-code-styling.js'"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <nav class="tabs" role="tablist" aria-label="QR Studio mode">
+    <button class="tab active" role="tab" aria-selected="true" data-view="create">Create QR</button>
+    <button class="tab" role="tab" aria-selected="false" data-view="scan">Scan QR</button>
+  </nav>
+  <main class="app-shell" id="createView">
+    <section class="builder panel">
+      <div class="brand-row">
+        <div class="brand-mark">▦</div>
+        <div>
+          <div class="brand-name">QR<span>STUDIO</span></div>
+          <div class="brand-sub">DESIGN • GENERATE • SHARE</div>
+        </div>
+        <button id="themeToggle" class="icon-button" title="Toggle theme" aria-label="Toggle theme">☼</button>
+      </div>
+
+      <div class="step-heading"><span>1</span> Choose QR code type</div>
+      <div class="type-grid" id="typeGrid">
+        <button class="type-btn active" data-type="url"><b>↗</b><span>URL / Link</span></button>
+        <button class="type-btn" data-type="text"><b>▤</b><span>Text</span></button>
+        <button class="type-btn" data-type="email"><b>✉</b><span>Email</span></button>
+        <button class="type-btn" data-type="phone"><b>♧</b><span>Phone</span></button>
+        <button class="type-btn" data-type="sms"><b>▱</b><span>SMS</span></button>
+        <button class="type-btn" data-type="wifi"><b>⌁</b><span>Wi-Fi</span></button>
+        <button class="type-btn" data-type="vcard"><b>▣</b><span>vCard</span></button>
+        <button class="type-btn" data-type="event"><b>▦</b><span>Event</span></button>
+        <button class="type-btn" data-type="location"><b>⌖</b><span>Location</span></button>
+        <button class="type-btn" data-type="whatsapp"><b>◉</b><span>WhatsApp</span></button>
+      </div>
+
+      <div class="step-heading"><span>2</span> Enter data</div>
+      <div id="dataFields" class="data-fields"></div>
+
+      <div class="step-heading"><span>3</span> Customize your QR code</div>
+      <p class="hint">Pick a ready-made style, or choose your own colors. No codes needed.</p>
+      <div class="group-label">Ready-made styles</div>
+      <div class="theme-grid" id="themeGrid"></div>
+      <div class="group-label">QR color</div>
+      <div class="swatches" id="fgSwatches"><label class="swatch custom" title="Pick any color">+<input id="foreground"
+            type="color" value="#2563eb" aria-label="Custom QR color"></label></div>
+      <div class="group-label">Background color</div>
+      <div class="swatches" id="bgSwatches"><label class="swatch custom" title="Pick any color">+<input id="background"
+            type="color" value="#ffffff" aria-label="Custom background color"></label></div>
+      <div id="contrastNote" class="warn" role="alert" hidden></div>
+      <details class="more">
+        <summary>More options: shape, quality, logo</summary>
+        <div class="group-label">Pattern shape</div>
+        <div class="choices" data-for="dotStyle"></div>
+        <div class="group-label">Corner frame</div>
+        <div class="choices" data-for="cornerStyle"></div>
+        <div class="group-label">Corner center</div>
+        <div class="choices" data-for="cornerDotStyle"></div>
+        <div class="group-label">Image quality</div>
+        <div class="choices" data-for="outputSize"></div>
+        <div class="group-label">Your logo <span class="optional">(optional, shown in the center)</span></div>
+        <input id="logoUpload" type="file" accept="image/png,image/jpeg,image/webp" aria-label="Upload logo">
+        <button id="removeLogo" class="secondary-button" type="button" hidden>Remove logo</button>
+      </details>
+      <select id="dotStyle" hidden>
+        <option value="square">Squares</option>
+        <option value="rounded">Rounded</option>
+        <option value="dots">Dots</option>
+        <option value="classy">Classy</option>
+        <option value="extra-rounded">Soft</option>
+      </select>
+      <select id="cornerStyle" hidden>
+        <option value="square">Square</option>
+        <option value="extra-rounded">Soft</option>
+        <option value="dot">Round</option>
+      </select>
+      <select id="cornerDotStyle" hidden>
+        <option value="dot">Round</option>
+        <option value="square">Square</option>
+      </select>
+      <select id="outputSize" hidden>
+        <option value="512">Standard (512 px)</option>
+        <option value="1024" selected>High (1024 px)</option>
+        <option value="2048">Print (2048 px)</option>
+      </select>
+      <div class="action-row">
+        <button id="generateBtn" class="primary-button"><span>▦</span> Generate QR Code</button>
+        <button id="resetBtn" class="secondary-button">Reset</button>
+      </div>
+      <p class="privacy-note"><span>♙</span> Everything is generated in your browser. Your data never leaves your
+        device.</p>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="preview panel" id="preview">
+      <div class="preview-top">
+        <div>
+          <div class="preview-title">Your QR code</div>
+          <div class="preview-caption">A crisp code, ready to scan</div>
+        </div><span class="live-pill"><i></i> LIVE PREVIEW</span>
+      </div>
+      <div class="qr-stage">
+        <div id="qrCanvas" class="qr-canvas">
+          <div class="placeholder">
+            <div class="placeholder-icon">▦</div><strong>Your QR code appears here</strong><span>Choose a type and enter
+              your data</span>
+          </div>
+        </div>
+      </div>
+      <div class="scan-hint"><span>⌗</span> Scan with your phone before printing.</div>
+      <div class="format-label" id="fmtLabel">Download as (pick one)</div>
+      <div class="format-grid" role="radiogroup" aria-labelledby="fmtLabel">
+        <button class="format-btn active" role="radio" aria-checked="true"
+          data-format="png"><strong>PNG</strong><small>Best for sharing</small></button>
+        <button class="format-btn" role="radio" aria-checked="false" data-format="svg"><strong>SVG</strong><small>Sharp
+            at any size</small></button>
+        <button class="format-btn" role="radio" aria-checked="false" data-format="pdf"><strong>PDF</strong><small>Ready
+            to print</small></button>
+        <button class="format-btn" role="radio" aria-checked="false"
+          data-format="webp"><strong>WebP</strong><small>Small file size</small></button>
+      </div>
+      <button id="downloadBtn" class="download-all" disabled>Download PNG</button>
+      <button id="downloadAll" class="link-btn" type="button">Need every format? Download all</button>
+      <div class="preview-foot"><span>QR STUDIO</span><span>Made for sharing <b>✦</b></span></div>
+    </section>
+  </main>
+  <main class="scan-shell" id="scanView" hidden>
+    <section class="panel">
+      <div class="preview-title">Scan a QR code</div>
+      <p class="hint">Upload a photo or screenshot of a QR code, or point your camera at it.</p>
+      <div class="action-row">
+        <label class="primary-button file-btn">Upload image<input id="scanFile" type="file" accept="image/*"
+            hidden></label>
+        <button id="camBtn" class="secondary-button" type="button">Use camera</button>
+      </div>
+      <video id="scanVideo" class="scan-video" playsinline muted hidden></video>
+      <p id="scanMsg" class="status" role="status" aria-live="polite"></p>
+      <div id="scanResult" class="scan-result" hidden>
+        <div class="group-label" id="scanKind"></div>
+        <pre id="scanText"></pre>
+        <div class="action-row">
+          <button id="scanCopy" class="primary-button" type="button">Copy</button>
+          <a id="scanOpen" class="secondary-button open-link" target="_blank" rel="noopener noreferrer" hidden>Open
+            link</a>
+        </div>
+        <p class="hint">Check a link carefully before opening it.</p>
+      </div>
+    </section>
+  </main>
+  <script src="main.js"></script>
+</body>
+
+</html>
